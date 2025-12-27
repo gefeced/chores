@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chore Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <h1 class="brand__title">Chore Tracker</h1>
+          <p class="brand__subtitle">Track sessions, earn XP, spend coins.</p>
+        </div>
+
+        <div class="stats" aria-label="Player stats">
+          <div class="stat">
+            <div class="stat__label">Level</div>
+            <div class="stat__value" id="levelValue">1</div>
+          </div>
+          <div class="stat">
+            <div class="stat__label">Total XP</div>
+            <div class="stat__value" id="xpValue">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat__label">Chore Coins</div>
+            <div class="stat__value" id="coinsValue">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat__label">Tokens</div>
+            <div class="stat__value" id="tokensValue">0</div>
+          </div>
+        </div>
+      </header>
+
+      <section class="level-progress" aria-label="Level progress">
+        <div class="level-progress__row">
+          <div class="level-progress__title">Level Progress</div>
+          <div class="level-progress__text" id="levelProgressText">0 / 250 XP</div>
+        </div>
+        <div
+          class="progress"
+          id="levelProgressBar"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <div class="progress__fill" id="levelProgressFill"></div>
+        </div>
+
+        <div class="level-progress__meta" aria-label="Boosts and rebirth">
+          <div class="pillrow" id="boostRow"></div>
+
+          <div class="rebirth">
+            <div class="rebirth__left">
+              <div class="rebirth__title">Rebirth</div>
+              <div class="rebirth__desc" id="rebirthStatus">Reach level 10 and spend 1000 coins.</div>
+            </div>
+            <button type="button" class="btn" id="rebirthBtn" disabled>Rebirth</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mobile section tabs (shown only on small screens) -->
+      <nav class="mobile-nav" id="mobileNav" aria-label="Sections">
+        <button type="button" class="mobile-nav__btn is-active" data-area="session">
+          Session
+        </button>
+        <button type="button" class="mobile-nav__btn" data-area="history">History</button>
+        <button type="button" class="mobile-nav__btn" data-area="shop">Shop</button>
+        <button type="button" class="mobile-nav__btn" data-area="summary">Summary</button>
+      </nav>
+
+      <main class="layout">
+        <!-- Session Panel -->
+        <section class="card session mobile-panel is-active" id="sessionCard" data-area="session" aria-label="Session panel">
+          <div class="card__header">
+            <h2 class="card__title">Session</h2>
+
+            <div class="mode-toggle" role="group" aria-label="Session mode">
+              <button
+                type="button"
+                class="mode-toggle__btn is-active"
+                data-mode="stopwatch"
+                aria-pressed="true"
+              >
+                Stopwatch
+              </button>
+              <button
+                type="button"
+                class="mode-toggle__btn"
+                data-mode="manual"
+                aria-pressed="false"
+              >
+                Manual
+              </button>
+            </div>
+          </div>
+
+          <!-- Stick-figure animation sits behind the active stopwatch UI -->
+          <div class="session__bg" id="sessionBg" aria-hidden="true">
+            <div class="runner">
+              <div class="runner__head"></div>
+              <div class="runner__torso"></div>
+              <div class="runner__arm runner__arm--left"></div>
+              <div class="runner__arm runner__arm--right"></div>
+              <div class="runner__leg runner__leg--left"></div>
+              <div class="runner__leg runner__leg--right"></div>
+            </div>
+          </div>
+
+          <!-- Stopwatch Mode -->
+          <div class="session__body" id="stopwatchPanel">
+            <div class="timer" aria-label="Stopwatch time">
+              <div class="timer__value" id="timerValue">00:00</div>
+              <div class="timer__hint" id="timerHint">Ready</div>
+            </div>
+
+            <div class="actions">
+              <button type="button" class="btn btn--primary" id="startBtn">Start</button>
+              <button type="button" class="btn" id="pauseBtn" disabled>Pause</button>
+              <button type="button" class="btn" id="resumeBtn" disabled>Resume</button>
+              <button type="button" class="btn btn--danger" id="stopBtn" disabled>Stop</button>
+            </div>
+
+            <p class="microcopy">
+              Stopwatch sessions ask for chores after you stop timing.
+            </p>
+          </div>
+
+          <!-- Manual Mode -->
+          <form class="session__body is-hidden" id="manualPanel">
+            <div class="field-row">
+              <label class="field">
+                <span class="field__label">Minutes</span>
+                <input
+                  id="manualMinutes"
+                  class="input"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value="15"
+                  inputmode="numeric"
+                  required
+                />
+              </label>
+
+              <div class="field field--grow">
+                <span class="field__label">Chores</span>
+                <div class="checkgrid" id="manualChores" aria-label="Select chores"></div>
+              </div>
+            </div>
+
+            <div class="add-chore">
+              <label class="field field--grow">
+                <span class="field__label">Add a chore name</span>
+                <input
+                  id="newChoreName"
+                  class="input"
+                  type="text"
+                  placeholder="e.g., Clean kitchen"
+                  maxlength="40"
+                />
+              </label>
+              <button type="button" class="btn" id="addChoreBtn">Add</button>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="btn btn--primary" id="manualReviewBtn">
+                Review Session
+              </button>
+            </div>
+
+            <p class="microcopy">Manual sessions log minutes + selected chores.</p>
+          </form>
+        </section>
+
+        <!-- Right Column -->
+        <div class="rightcol">
+          <!-- Music Panel (unlocked via Music Pack) -->
+          <section class="card music is-hidden mobile-panel" id="musicCard" data-area="history" aria-label="Music player">
+            <div class="card__header">
+              <h2 class="card__title">Music</h2>
+              <p class="card__subtitle" id="musicStatus">Locked</p>
+            </div>
+            <div class="music__body">
+              <audio id="musicAudio" preload="metadata"></audio>
+              <div class="music__row">
+                <label class="field field--grow">
+                  <span class="field__label">Track</span>
+                  <select class="input" id="musicSelect"></select>
+                </label>
+                <button type="button" class="btn btn--primary" id="musicPlayBtn">Play</button>
+                <button type="button" class="btn" id="musicPauseBtn">Pause</button>
+              </div>
+              <div class="music__row">
+                <label class="field field--grow">
+                  <span class="field__label">Volume</span>
+                  <input class="input" id="musicVolume" type="range" min="0" max="1" step="0.01" />
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <!-- Weekly Summary -->
+          <section class="card weekly mobile-panel" id="weeklySummaryCard" data-area="summary" aria-label="Weekly summary">
+            <div class="card__header">
+              <h2 class="card__title">Weekly Summary</h2>
+              <label class="field weekly__picker">
+                <span class="field__label">Week</span>
+                <select class="input" id="weekSelect" aria-label="Select week"></select>
+              </label>
+            </div>
+            <div class="weekly__body">
+              <div class="weekly__top">
+                <div class="weekly__toplabel">Top stat</div>
+                <div class="weekly__topvalue" id="weekTopStat">—</div>
+              </div>
+              <div class="weekly-grid" id="weeklyGrid" aria-label="Weekly totals"></div>
+            </div>
+          </section>
+
+          <!-- History -->
+          <section class="card mobile-panel" id="historyCard" data-area="history" aria-label="History">
+            <div class="card__header">
+              <h2 class="card__title">History</h2>
+              <p class="card__subtitle">View-only list of saved sessions.</p>
+            </div>
+            <ul class="history-list" id="historyList"></ul>
+          </section>
+
+          <!-- Shop -->
+          <section class="card mobile-panel" id="shopCard" data-area="shop" aria-label="Shop">
+            <div class="card__header">
+              <h2 class="card__title">Shop</h2>
+              <div class="tabs" role="tablist" aria-label="Shop tabs">
+                <button type="button" class="tab is-active" id="shopTabBtn" role="tab" aria-selected="true">
+                  Shop
+                </button>
+                <button type="button" class="tab" id="inventoryTabBtn" role="tab" aria-selected="false">
+                  Inventory
+                </button>
+              </div>
+            </div>
+            <div class="shop-body">
+              <div class="shop-cats" role="group" aria-label="Shop categories" id="shopCats"></div>
+              <div class="shop-grid" id="shopGrid"></div>
+              <div class="inventory is-hidden" id="inventoryPanel" aria-label="Inventory panel"></div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- Summary Modal -->
+    <dialog class="dialog" id="summaryDialog" aria-labelledby="summaryTitle">
+      <form class="dialog__panel" id="summaryForm">
+        <div class="dialog__header">
+          <h3 class="dialog__title" id="summaryTitle">Session Summary</h3>
+          <button type="button" class="icon-btn" id="closeSummaryBtn" aria-label="Close summary">
+            ✕
+          </button>
+        </div>
+
+        <div class="dialog__body">
+          <div class="summary-grid">
+            <div class="summary-block">
+              <div class="summary-block__label">Date</div>
+              <div class="summary-block__value" id="summaryDate">—</div>
+            </div>
+            <div class="summary-block">
+              <div class="summary-block__label">Time Spent</div>
+              <div class="summary-block__value" id="summaryDuration">—</div>
+            </div>
+            <div class="summary-block">
+              <div class="summary-block__label">XP Earned</div>
+              <div class="summary-block__value" id="summaryXp">—</div>
+            </div>
+            <div class="summary-block">
+              <div class="summary-block__label">Coins Earned</div>
+              <div class="summary-block__value" id="summaryCoins">—</div>
+            </div>
+          </div>
+
+          <div class="breakdown" id="summaryBreakdown" aria-label="XP breakdown"></div>
+
+          <div class="divider"></div>
+
+          <div class="field">
+            <span class="field__label">Chores completed</span>
+            <div class="checkgrid" id="summaryChores"></div>
+            <div class="add-chore add-chore--modal">
+              <label class="field field--grow">
+                <span class="field__label">Add a chore name</span>
+                <input
+                  id="summaryNewChoreName"
+                  class="input"
+                  type="text"
+                  placeholder="e.g., Take out trash"
+                  maxlength="40"
+                />
+              </label>
+              <button type="button" class="btn" id="summaryAddChoreBtn">Add</button>
+            </div>
+            <p class="field__help" id="summaryError" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="dialog__footer">
+          <button type="button" class="btn btn--ghost" id="discardBtn">Discard</button>
+          <button type="button" class="btn btn--primary" id="saveBtn">
+            Save Session
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Confirmation Modal (shop, rebirth, token deduction, etc.) -->
+    <dialog class="dialog" id="confirmDialog" aria-labelledby="confirmTitle">
+      <div class="dialog__panel">
+        <div class="dialog__header">
+          <h3 class="dialog__title" id="confirmTitle">Confirm</h3>
+          <button type="button" class="icon-btn" id="confirmCloseBtn" aria-label="Close confirmation">
+            ✕
+          </button>
+        </div>
+        <div class="dialog__body">
+          <div class="confirm__text" id="confirmText">—</div>
+        </div>
+        <div class="dialog__footer">
+          <button type="button" class="btn btn--ghost" id="confirmCancelBtn">Cancel</button>
+          <button type="button" class="btn btn--primary" id="confirmOkBtn">Confirm</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Pet Mop Companion (unlocked + toggleable) -->
+    <div class="pet is-hidden" id="petMop" aria-label="Pet Mop companion">
+      <div class="pet__dust" id="petDust" aria-hidden="true"></div>
+      <div class="pet__bubble is-hidden" id="petBubble" aria-live="polite"></div>
+      <div class="pet__mop" aria-hidden="true">
+        <div class="pet__handle"></div>
+        <div class="pet__head"></div>
+      </div>
+    </div>
+
+    <!-- Mobile sticky action (Stopwatch Start/Stop) -->
+    <div class="mobile-actionbar" id="mobileActionBar" aria-label="Primary action">
+      <button type="button" class="btn btn--primary mobile-actionbar__btn" id="mobilePrimaryBtn">
+        Start
+      </button>
+    </div>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
